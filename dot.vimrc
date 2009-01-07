@@ -40,12 +40,12 @@ else
 endif
 set diffopt=filler,iwhite
 let &statusline = ''
-let &statusline .= '%<[%n]%m%r%h%w'
+let &statusline .= '%<%m%r%h%w'
 let &statusline .= '['
 let &statusline .= '%{&fileencoding != "" ? &fileencoding : &encoding}'
 let &statusline .= '%{":" . &fileformat}'
 let &statusline .= ']'
-let &statusline .= '%y %F%=0x%B(%b) %l/%L %c%V%6P'
+let &statusline .= '%y %f%=0x%B(%b) %l/%L %c%V%6P'
 set cinoptions=:0,g0,t0,(0
 
 " load smartfinder
