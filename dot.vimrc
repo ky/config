@@ -15,6 +15,7 @@ set noshowmatch
 set autoindent
 set smartindent
 set ignorecase
+set smartcase
 set hlsearch
 set incsearch
 set wrapscan
@@ -30,7 +31,7 @@ set nowrap
 set tags=./tags,./TAGS,tags,TAGS
 set nopaste
 set history=100
-set textwidth=78
+set formatoptions=croqnM1
 set runtimepath&
 if has('win16') || has('win32') || has('win64')
   set runtimepath+=$VIM/chalice
@@ -185,7 +186,7 @@ function! AU_ReCheck_FENC()
     let &fileencoding=&encoding
   endif
 endfunction
-autocmd BufReadPost * call AU_ReCheck_FENC()
+autocmd MyAutoCommand BufReadPost * call AU_ReCheck_FENC()
 set fileformats& fileformats+=mac
 if exists('&ambiwidth')
   set ambiwidth=double
