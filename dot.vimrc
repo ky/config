@@ -5,16 +5,16 @@
 set nocompatible
 
 if has('win16') || has('win32') || has('win64')
-  let s:windows = 1
+  let s:WINDOWS = 1
 else
-  let s:windows = 0
+  let s:WINDOWS = 0
 endif
 
 syntax on
 filetype indent plugin on
 set hidden
 set nobackup
-set noswapfile
+set swapfile
 set showmode
 set showcmd
 set noshowmatch
@@ -40,7 +40,7 @@ set nopaste
 set history=100
 set formatoptions=croqnM1
 set runtimepath&
-if s:windows
+if s:WINDOWS
   set runtimepath+=$VIM/chalice
 else
   set runtimepath+=$HOME/chalice
@@ -54,6 +54,7 @@ let &statusline .= '%{":" . &fileformat}'
 let &statusline .= ']'
 let &statusline .= '%y %f%=0x%B(%b) %l/%L %c%V%6P'
 set cinoptions=:0,g0,t0,(0
+set nrformats=hex
 
 
 
@@ -75,9 +76,10 @@ endif
 command! -nargs=? -bang Cp932 edit<bang> ++enc=cp932 <args>
 command! -nargs=? -bang Euc edit<bang> ++enc=euc-jp <args>
 command! -nargs=? -bang Iso2022jp edit<bang> ++enc=iso-2022-jp <args>
-command! -nargs=? -bang Jis edit<bang> Iso2022jp<bang> <args>
-command! -nargs=? -bang Sjis Cp932<bang> <args>
 command! -nargs=? -bang Utf8 edit<bang> ++enc=utf-8 <args>
+
+command! -nargs=? -bang Jis Iso2022jp<bang> <args>
+command! -nargs=? -bang Sjis Cp932<bang> <args>
 
 
 
@@ -128,20 +130,18 @@ autocmd MyAutoCommand CmdwinLeave *
 
 
 " load smartfinder
-if !exists('g:smartfinder_options')
-  runtime! autoload/smartfinder.vim
-endif
-if exists('g:smartfinder_options')
+runtime! plugin/smartfinder.vim
+if exists('g:loaded_smartfinder')
   function! s:smartfinder_bufname()
-    return g:smartfinder_options.global.bufname
+    return smartfinder#get_option('bufname')
   endfunction
 
   autocmd MyAutoCommand BufEnter *
-        \ call s:do_command('AutoComplPopLock', s:smartfinder_bufname())
+        \ call s:do_command('AutoComplPopDisable', s:smartfinder_bufname())
   autocmd MyAutoCommand BufFilePost *
-        \ call s:do_command('AutoComplPopLock', s:smartfinder_bufname())
+        \ call s:do_command('AutoComplPopDisable', s:smartfinder_bufname())
   autocmd MyAutoCommand BufLeave *
-        \ call s:do_command('AutoComplPopUnlock', s:smartfinder_bufname())
+        \ call s:do_command('AutoComplPopEnable', s:smartfinder_bufname())
 endif
 
 
@@ -150,53 +150,58 @@ endif
 
 " encoding {{{1
 
-" from http://www.kawaz.jp/pukiwiki/?vim#content_1_7
 if &encoding !=# 'utf-8'
   set encoding=japan
-  set fileencoding=japan
 endif
 if has('iconv')
   let s:enc_euc = 'euc-jp'
   let s:enc_jis = 'iso-2022-jp'
-  let s:test_code = "\x87\x64\x87\x6a"
+  " ton doru
+  let s:test_code = "\x88\x64\x87\x6a"
   let s:conv_result = "\xad\xc5\xad\xcb"
+
   if iconv(s:test_code, 'cp932', 'eucjp-ms') ==# s:conv_result
-    let s:enc_euc = 'eucjp-ms'
+    let s:enc_euc = 'eucjp-ms,euc-jp'
     let s:enc_jis = 'iso-2022-jp-3'
   elseif iconv(s:test_code, 'cp932', 'euc-jisx0213') ==# s:conv_result
-    let s:enc_euc = 'euc-jisx0213'
+    let s:enc_euc = 'euc-jisx0213,euc-jp'
     let s:enc_jis = 'iso-2022-jp-3'
   endif
+
+  unlet s:test_code
+  unlet s:conv_result
+
+  let &fileencodings = 'ucs-bom'
   if &encoding ==# 'utf-8'
-    let s:fileencodings_default = &fileencodings
-    let &fileencodings = s:enc_jis .','. s:enc_euc .',cp932'
-    let &fileencodings = &fileencodings .','. s:fileencodings_default
-    unlet s:fileencodings_default
+    "let &fileencodings .= ',' . 'ucs-2le'
+    "let &fileencodings .= ',' . 'ucs-2'
+    let &fileencodings .= ',' . s:enc_jis 
+    let &fileencodings .= ',' . s:enc_euc 
+    let &fileencodings .= ',' . 'cp932'
+    let &fileencodings .= ',' . 'utf-8'
+  elseif &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
+    let &fileencodings .= ',' . 'ucs-2le'
+    let &fileencodings .= ',' . 'ucs-2'
+    let &fileencodings .= ',' . 'utf-8'
+    let &fileencodings .= ',' . s:enc_jis
+    let &fileencodings .= ',' . 'cp932'
+    let &fileencodings .= ',' . s:enc_euc
+    let &encoding = split(s:enc_euc, ',')[0]
   else
-    let &fileencodings = &fileencodings .','. s:enc_jis
-    set fileencodings+=utf-8,ucs-2le,ucs-2
-    if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
-      set fileencodings+=cp932
-      set fileencodings-=euc-jp
-      set fileencodings-=euc-jisx0213
-      set fileencodings-=eucjp-ms
-      let &encoding = s:enc_euc
-      let &fileencoding = s:enc_euc
-    else
-      let &fileencodings = &fileencodings .','. s:enc_euc
-    endif
+    let &fileencodings .= ',' . 'ucs-2le'
+    let &fileencodings .= ',' . 'ucs-2'
+    let &fileencodings .= ',' . 'utf-8'
+    let &fileencodings .= ',' . s:enc_jis
+    let &fileencodings .= ',' . s:enc_euc 
+    let &fileencodings .= ',' . 'cp932'
   endif
   unlet s:enc_euc
   unlet s:enc_jis
-  unlet s:test_code
-  unlet s:conv_result
 endif
-function! s:au_recheck_fenc()
-  if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
-    let &fileencoding=&encoding
-  endif
-endfunction
-autocmd MyAutoCommand BufReadPost * call s:au_recheck_fenc()
+autocmd MyAutoCommand BufReadPost * 
+      \ if &modifiable && search("[^\x01-\x7f]", 'cnw') == 0 |
+      \   setlocal fileencoding=  |
+      \ endif
 set ambiwidth=double
 
 
@@ -212,6 +217,10 @@ function! s:toggle_option(option_name)
 endfunction
 
 " nmap
+nnoremap H <C-w>W
+nnoremap L <C-w>w
+nnoremap gh H
+nnoremap gl L
 nnoremap gt :<C-u>bnext<CR>
 nnoremap gT :<C-u>bprevious<CR>
 nnoremap ZZ <Nop>
@@ -222,7 +231,7 @@ noremap ' `
 noremap ` '
 
 nnoremap <Space> <Nop>
-if s:windows
+if s:WINDOWS
   nnoremap <Space>, :<C-u>edit $VIM/_gvimrc<CR>
   nnoremap <Space>. :<C-u>edit $VIM/_vimrc<CR>
 else
@@ -248,7 +257,7 @@ nnoremap <Space>eU :<C-u>Utf8!<CR>
 nnoremap <Space>h  :<C-u>nohlsearch<CR>
 nnoremap <Space>j  <Nop>
 nnoremap <Space>jb :<C-u>SmartFinder buffer<CR>
-nnoremap <Space>jf :<C-u>SmartFinder file<CR>
+nnoremap <Space>jf :<C-u>SmartFinder file --cache-clear<CR>
 nnoremap <Space>jk :<C-u>SmartFinder bookmark<CR>
 nnoremap <Space>n  :<C-u>cnext<CR>
 nnoremap <Space>N  :<C-u>cprevious<CR>
@@ -258,14 +267,14 @@ nnoremap <Space>s  <Nop>
 nnoremap <Space>so :<C-u>source %<CR>
 
 " cmap
-cnoremap <C-A> <Home>
-cnoremap <C-F> <Right>
-cnoremap <C-B> <Left>
-cnoremap <C-D> <Delete>
+cnoremap <C-a> <Home>
+cnoremap <C-f> <Right>
+cnoremap <C-b> <Left>
+cnoremap <C-d> <Delete>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
-cnoremap <C-J> <Nop>
-set cedit=<C-O>
+cnoremap <C-j> <Nop>
+set cedit=<C-o>
 
 
 
@@ -288,40 +297,48 @@ end
 
 " vimball.vim
 " http://www.vim.org/scripts/script.php?script_id=1502
-if s:windows
+if s:WINDOWS
   let g:vimball_home = '$VIM/vimfiles'
 endif
 
 " smartfinder.vim
 " http://github.com/ky/smartfinder/tree/master
-if exists('g:smartfinder_options')
-  if s:windows
+if exists('g:loaded_smartfinder')
+  function! g:SmartFinderMapBookmarkKey()
+    imap <buffer> / <Plug>SmartFinderBookmarkSelected
+  endfunction
+
+
+  function! g:SmartFinderUnmapBookmarkKey()
+    call smartfinder#safe_iunmap('/')
+  endfunction
+
+
+  if s:WINDOWS
     let s:bookmark = [
-          \ [ 'vimfiles', '$VIM/vimfiles/' ],
+          \ [ '.vim', '$VIM/vimfiles/' ],
+          \ [ '.vim/autoload', '$VIM/vimfiles/autoload/' ],
+          \ [ '.vim/doc', '$VIM/vimfiles/doc/' ],
+          \ [ '.vim/plugin', '$VIM/vimfiles/plugin/' ],
           \ [ 'work', 'E:/work/' ]
           \]
   else
     let s:bookmark = [
+          \ [ '.vim', '~/.vim/' ],
+          \ [ '.vim/autoload', '~/.vim/autoload/' ],
+          \ [ '.vim/doc', '~/.vim/doc/' ],
+          \ [ '.vim/plugin', '~/.vim/plugin/' ],
           \ [ 'work', '~/work/' ],
           \ [ 'memo', '~/memo/' ]
           \]
   endif
 
-  function! g:SmartFinderBookmarkKeyMap()
-    call smartfinder#bookmark#map_default_keys()
-    imap <buffer> / <Plug>SmartFinderBookmarkSelected
-  endfunction
+  call smartfinder#set_mode_option('bookmark', 'bookmark_list', s:bookmark)
+  call smartfinder#set_mode_option('bookmark', 'key_mappings',
+        \ 'g:SmartFinderMapBookmarkKey')
+  call smartfinder#set_mode_option('bookmark', 'key_unmappings',
+        \ 'g:SmartFinderUnmapBookmarkKey')
 
-  function! g:SmartFinderBookmarkKeyUnmap()
-    call smartfinder#safe_iunmap(['/'])
-    call smartfinder#bookmark#unmap_default_keys()
-  endfunction
-
-  let g:smartfinder_options.mode.bookmark = {
-        \ 'bookmark_list'          : s:bookmark,
-        \ 'key_mapping_function'   : 'g:SmartFinderBookmarkKeyMap',
-        \ 'key_unmapping_function' : 'g:SmartFinderBookmarkKeyUnmap',
-        \}
   unlet s:bookmark
 endif
 
@@ -331,7 +348,7 @@ endif
 " end {{{1
 
 " unlet
-unlet s:windows
+unlet s:WINDOWS
 
 
 " :help 'secure'
