@@ -2,6 +2,7 @@
 
 
 " options "{{{1
+
 set nocompatible
 
 if has('win16') || has('win32') || has('win64')
@@ -60,6 +61,7 @@ set nrformats=hex
 
 
 " colorscheme "{{{1
+
 if !exists('g:colors_name')
   if has('gui_running')
     colorscheme xoria256
@@ -265,6 +267,15 @@ nnoremap <Space>p  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <Space>w  :<C-u>call <SID>toggle_option('wrap')<CR>
 nnoremap <Space>s  <Nop>
 nnoremap <Space>so :<C-u>source %<CR>
+
+nnoremap <Space>H :<C-u>vertical aboveleft split %<CR>
+nnoremap <Space><C-h> :<C-u>vertical topleft split %<CR>
+nnoremap <Space>J :<C-u>belowright split %<CR>
+nnoremap <Space><C-j> :<C-u>botright split %<CR>
+nnoremap <Space>K :<C-u>aboveleft split %<CR>
+nnoremap <Space><C-k> :<C-u>topleft split %<CR>
+nnoremap <Space>L :<C-u>vertical belowright split %<CR>
+nnoremap <Space><C-l> :<C-u>vertical botright split %<CR>
 
 " cmap
 cnoremap <C-a> <Home>
