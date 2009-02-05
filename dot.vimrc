@@ -219,10 +219,6 @@ function! s:toggle_option(option_name)
 endfunction
 
 " nmap
-nnoremap H <C-w>W
-nnoremap L <C-w>w
-nnoremap gh H
-nnoremap gl L
 nnoremap gt :<C-u>bnext<CR>
 nnoremap gT :<C-u>bprevious<CR>
 nnoremap ZZ <Nop>
@@ -256,11 +252,22 @@ nnoremap <Space>es :<C-u>Sjis<CR>
 nnoremap <Space>eS :<C-u>Sjis!<CR>
 nnoremap <Space>eu :<C-u>Utf8<CR>
 nnoremap <Space>eU :<C-u>Utf8!<CR>
-nnoremap <Space>h  :<C-u>nohlsearch<CR>
-nnoremap <Space>j  <Nop>
-nnoremap <Space>jb :<C-u>SmartFinder buffer<CR>
-nnoremap <Space>jf :<C-u>SmartFinder file --cache-clear<CR>
-nnoremap <Space>jk :<C-u>SmartFinder bookmark<CR>
+nnoremap <Space>f  <Nop>
+nnoremap <Space>fb :<C-u>SmartFinder buffer<CR>
+nnoremap <Space>ff :<C-u>SmartFinder file --cache-clear<CR>
+nnoremap <Space>fk :<C-u>SmartFinder bookmark<CR>
+nnoremap <Space>h <C-w>h
+nnoremap <Space>H :<C-u>vertical aboveleft split<CR>
+nnoremap <Space><C-h> :<C-u>vertical topleft split<CR>
+nnoremap <Space>j <C-w>j
+nnoremap <Space>J :<C-u>belowright split<CR>
+nnoremap <Space><C-j> :<C-u>botright split<CR>
+nnoremap <Space>k <C-w>k
+nnoremap <Space>K :<C-u>aboveleft split<CR>
+nnoremap <Space><C-k> :<C-u>topleft split<CR>
+nnoremap <Space>l <C-w>l
+nnoremap <Space>L :<C-u>vertical belowright split<CR>
+nnoremap <Space><C-l> :<C-u>vertical botright split<CR>
 nnoremap <Space>n  :<C-u>cnext<CR>
 nnoremap <Space>N  :<C-u>cprevious<CR>
 nnoremap <Space>p  :<C-u>call <SID>toggle_option('paste')<CR>
@@ -268,14 +275,6 @@ nnoremap <Space>w  :<C-u>call <SID>toggle_option('wrap')<CR>
 nnoremap <Space>s  <Nop>
 nnoremap <Space>so :<C-u>source %<CR>
 
-nnoremap <Space>H :<C-u>vertical aboveleft split %<CR>
-nnoremap <Space><C-h> :<C-u>vertical topleft split %<CR>
-nnoremap <Space>J :<C-u>belowright split %<CR>
-nnoremap <Space><C-j> :<C-u>botright split %<CR>
-nnoremap <Space>K :<C-u>aboveleft split %<CR>
-nnoremap <Space><C-k> :<C-u>topleft split %<CR>
-nnoremap <Space>L :<C-u>vertical belowright split %<CR>
-nnoremap <Space><C-l> :<C-u>vertical botright split %<CR>
 
 " cmap
 cnoremap <C-a> <Home>
