@@ -218,6 +218,21 @@ function! s:toggle_option(option_name)
   execute "setlocal " . a:option_name . "?"
 endfunction
 
+
+" smartword.vim
+" http://www.vim.org/scripts/script.php?script_id=2470
+runtime! plugin/smartword.vim
+if exists('g:loaded_smartword')
+  map w <Plug>(smartword-w)
+  map b <Plug>(smartword-b)
+  map e <Plug>(smartword-e)
+  map ge <Plug>(smartword-ge)
+  noremap W w
+  noremap B b
+  noremap E e
+  noremap gE ge
+endif
+
 " nmap
 nnoremap gt :<C-u>bnext<CR>
 nnoremap gT :<C-u>bprevious<CR>
@@ -273,6 +288,7 @@ nnoremap <Space>N  :<C-u>cprevious<CR>
 nnoremap <Space>p  :<C-u>call <SID>toggle_option('paste')<CR>
 nnoremap <Space>w  :<C-u>call <SID>toggle_option('wrap')<CR>
 nnoremap <Space>s  <Nop>
+nnoremap <Space>sh :<C-u>call <SID>toggle_option('hlsearch')<CR>
 nnoremap <Space>so :<C-u>source %<CR>
 
 
