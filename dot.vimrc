@@ -107,7 +107,7 @@ endfunction
 
 
 function! s:do_command(cmd, ...)
-  if exists(':' . a:cmd) == 2 && (!a:0 || a:000[0] ==# bufname('%'))
+  if exists(':' . a:cmd) == 2 && (a:0 ? a:1 ==# bufname('%') : 1)
     silent execute a:cmd
   endif
 endfunction
