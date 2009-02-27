@@ -11,7 +11,7 @@ else
   let s:WINDOWS = 0
 endif
 
-syntax on
+syntax enable
 filetype indent plugin on
 set hidden
 set nobackup
