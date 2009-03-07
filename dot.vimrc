@@ -315,18 +315,6 @@ let g:rails_gnu_screen=1
 " I don't use this plugin.
 let g:loaded_matchparen = 1
 
-" grep.vim
-" http://www.vim.org/scripts/script.php?script_id=311
-if has('mac')
-  let g:Grep_Xargs_Options = '-0'
-end
-
-" vimball.vim
-" http://www.vim.org/scripts/script.php?script_id=1502
-if s:WINDOWS
-  let g:vimball_home = '$VIM/vimfiles'
-endif
-
 " smartfinder.vim
 " http://github.com/ky/smartfinder/tree/master
 if exists('g:loaded_smartfinder')
